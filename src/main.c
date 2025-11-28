@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     audio* audios = malloc(audio_capacity * sizeof(audio));
     audio* current_audio = NULL;
 
-    loadaudiosfromdirectory(&audios, audio_engine, &audio_count, &audio_capacity, "data/audios");
+    loadaudiosfromdirectory(&audios, audio_engine, &audio_count, &audio_capacity, "data/audios", NULL);
 
     setimguistyle(
         (ImVec4_c){255.0f/255.0f, 255.0f/255.0f, 255.0f/255.0f, 1.0f}, (ImVec4_c){38.0f/255.0f, 38.0f/255.0f, 38.0f/255.0f, 1.0f},
@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
 
         displayaudioinformation(current_audio, audio_engine);
 
+        igSpacing();
         igSpacing();
         igSeparator();
         igSpacing();

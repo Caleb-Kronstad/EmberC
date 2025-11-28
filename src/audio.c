@@ -10,7 +10,7 @@ void resizeaudios(audio** audios, int* capacity, int count)
     }
 }
 
-void addaudio(audio** audios, ma_engine* engine, int* count, int* capacity, int id, char* name, char* author, char* path)
+void addaudio(audio** audios, ma_engine* engine, int* count, int* capacity, int id, char* name, char* author, char* group, char* path)
 {
     if (!engine)
     {
@@ -36,6 +36,7 @@ void addaudio(audio** audios, ma_engine* engine, int* count, int* capacity, int 
     audio.id = id;
     strcpy(audio.name, name);
     strcpy(audio.author, author);
+    strcpy(audio.group, group);
     strcpy(audio.path, path);
     audio.sound = sound;
     
@@ -43,7 +44,7 @@ void addaudio(audio** audios, ma_engine* engine, int* count, int* capacity, int 
     (*count)++;
 }
 
-void loadaudiosfromdirectory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path)
+void loadaudiosfromdirectory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name)
 {
     char search_path[1024];
     (void)snprintf(search_path, sizeof(search_path), "%s\\*", directory_path);
@@ -71,7 +72,20 @@ void loadaudiosfromdirectory(audio** audios, ma_engine* engine, int* count, int*
     do
     {
         if (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            // Skip . and ..
+            if (strcmp(find_data.cFileName, ".") == 0 || strcmp(find_data.cFileName, "..") == 0)
+                continue;
+            
+            // Build subdirectory path
+            char subdir_path[1024];
+            snprintf(subdir_path, sizeof(subdir_path), "%s\\%s", directory_path, find_data.cFileName);
+            
+            // Recursively load from subdirectory, using its name as the group
+            loadaudiosfromdirectory(audios, engine, count, capacity, subdir_path, find_data.cFileName);
             continue;
+        }
+
         char* name = find_data.cFileName;
         size_t len = strlen(name);
 
@@ -85,7 +99,7 @@ void loadaudiosfromdirectory(audio** audios, ma_engine* engine, int* count, int*
         char full_path[1024];
         (void)snprintf(full_path, sizeof(full_path), "%s\\%s", directory_path, name);
 
-        addaudio(audios, engine, count, capacity, id++, name, "Unknown", full_path);
+        addaudio(audios, engine, count, capacity, id++, name, "Unknown", group_name ? group_name : "Uncategorized", full_path);
     }
     while (FindNextFileA(hFind, &find_data) != 0);
 

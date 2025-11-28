@@ -6,13 +6,14 @@ typedef struct audio
     int id;
     char name[256];
     char author[256];
+    char group[256];
     char path[512];
     ma_sound* sound;
 } audio;
 
 void resizeaudios(audio** audios, int* capacity, int count);
-void addaudio(audio** audios, ma_engine* engine, int* count, int* capacity, int id, char* name, char* author, char* path);
-void loadaudiosfromdirectory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path);
+void addaudio(audio** audios, ma_engine* engine, int* count, int* capacity, int id, char* name, char* author, char* group, char* path);
+void loadaudiosfromdirectory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name);
 
 ma_uint64 getdurationinframes(audio* audio);
 ma_uint64 getpositioninframes(audio* audio);

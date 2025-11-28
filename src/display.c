@@ -89,18 +89,56 @@ void displayaudioinformation(audio* audio, ma_engine* engine)
 
 void displayallaudios(audio* audios, audio** current_audio, int count)
 {
+    char unique_groups[256][256];  // Max 256 groups
+    int group_count = 0;
+    
     for (int i = 0; i < count; i++)
     {
-        igPushID_Int(audios[i].id);
-            
-        if (igSelectable_Bool(audios[i].name, *current_audio == &audios[i], 0, (ImVec2_c){300, 15}))
+        bool found = false;
+        for (int j = 0; j < group_count; j++)
         {
-            if (*current_audio)
-                stopaudio(*current_audio);
-            *current_audio = &audios[i];
-            restartaudio(*current_audio);
+            if (strcmp(unique_groups[j], audios[i].group) == 0)
+            {
+                found = true;
+                break;
+            }
         }
-            
-        igPopID();
+        
+        if (!found)
+        {
+            strcpy(unique_groups[group_count], audios[i].group);
+            group_count++;
+        }
+    }
+    
+    for (int g = 0; g < group_count; g++)
+    {
+        igPushStyleColor_Vec4(ImGuiCol_Text, (ImVec4_c){141.0f/255.0f, 124.0f/255.0f, 192.0f/255.0f, 1.0f});
+        igText(unique_groups[g]);
+        igPopStyleColor(1);
+        igSpacing();
+        
+        for (int i = 0; i < count; i++)
+        {
+            if (strcmp(audios[i].group, unique_groups[g]) == 0)
+            {
+                igPushID_Int(audios[i].id);
+                
+                if (igSelectable_Bool(audios[i].name, *current_audio == &audios[i], 0, (ImVec2_c){300, 15}))
+                {
+                    if (*current_audio)
+                        stopaudio(*current_audio);
+                    *current_audio = &audios[i];
+                    restartaudio(*current_audio);
+                }
+                
+                igPopID();
+            }
+        }
+        igSpacing();
+        igSpacing();
+        igSeparator();
+        igSpacing();
+        igSpacing();
     }
 }
