@@ -1,21 +1,29 @@
 OutputDir = "%{cfg.buildcfg}"
 
-workspace "EmberC"
+workspace "emberc"
     architecture "x64"
     configurations { "Debug", "Release" }
-    startproject "Ember"
-    location "Build"
+    startproject "ember"
+    location "build"
 
 -- EMBER --
-project "Ember"
-    kind "WindowedApp"
-    language "C++"
-    cppdialect "C++20"
-    staticruntime "on"
-    location "Build/Build-Files"
+project "ember"
+    kind "ConsoleApp"
+    language "C"
+    location "build/build-files"
+    
+    targetdir ("build/bin/" .. OutputDir .. "/%{prj.name}")
+    objdir ("build/bin-int/" .. OutputDir .. "/%{prj.name}")
     
     files {
-        "src/**",
+        "src/**.h",
+        "src/**.c",
+    }
+
+    defines {
+        "CIMGUI_DEFINE_ENUMS_AND_STRUCTS",
+        "CIMGUI_USE_GLFW",
+        "CIMGUI_USE_OPENGL3"
     }
     
     includedirs {
@@ -35,9 +43,6 @@ project "Ember"
         "cjson"
     }
     
-    targetdir ("%{wks.location}/Library/%{prj.name}")
-    objdir ("%{wks.location}/Intermediate/%{prj.name}")
-    
     filter "system:windows"
         systemversion "latest"
         defines { 
@@ -52,7 +57,6 @@ project "Ember"
         
     filter "system:linux"
         pic "On"
-        staticruntime "On"
         defines { 
             "EMBER_PLATFORM_LINUX" 
         }
@@ -79,14 +83,16 @@ project "Ember"
         optimize "On"
         symbols "Off"
 
+group "dependencies"
+
 -- MINIAUDIO --
 project "miniaudio"
-    location "Build/Build-Files"
+    location "build/build-files"
     kind "StaticLib"
     language "C"
 
-    targetdir ("Build/Binaries/" .. OutputDir .. "/Dependencies/%{prj.name}")
-    objdir ("Build/Binaries-Intermediate/" .. OutputDir .. "/Dependencies/%{prj.name}")
+    targetdir ("build/bin/" .. OutputDir .. "/dependencies/%{prj.name}")
+    objdir ("build/bin-int/" .. OutputDir .. "/dependencies/%{prj.name}")
 
     files {
         "dependencies/miniaudio/miniaudio.h",
@@ -119,11 +125,12 @@ project "miniaudio"
 
 -- CJSON --
 project "cjson"
+    location "build/build-files"
     kind "StaticLib"
     language "C"
 
-    targetdir ("Build/Binaries/" .. OutputDir .. "/Dependencies/%{prj.name}")
-    objdir ("Build/Binaries-Intermediate/" .. OutputDir .. "/Dependencies/%{prj.name}")
+    targetdir ("build/bin/" .. OutputDir .. "/dependencies/%{prj.name}")
+    objdir ("build/bin-int/" .. OutputDir .. "/dependencies/%{prj.name}")
     
     files {
         "dependencies/cjson/cJSON.h",
@@ -163,12 +170,12 @@ project "cjson"
 
 -- GLAD --
 project "glad"
-    location "Build/Build-Files"
+    location "build/build-files"
     kind "StaticLib"
     language "C"
 
-    targetdir ("Build/Binaries/" .. OutputDir .. "/Dependencies/%{prj.name}")
-    objdir ("Build/Binaries-Intermediate/" .. OutputDir .. "/Dependencies/%{prj.name}")
+    targetdir ("build/bin/" .. OutputDir .. "/dependencies/%{prj.name}")
+    objdir ("build/bin-int/" .. OutputDir .. "/dependencies/%{prj.name}")
 
     files {
         "dependencies/glad/include/glad/glad.h",
@@ -202,12 +209,12 @@ project "glad"
 
 -- GLFW --
 project "glfw"
-    location "Build/Build-Files"
+    location "build/build-files"
     kind "StaticLib"
     language "C"
 
-    targetdir ("Build/Binaries/" .. OutputDir .. "/Dependencies/%{prj.name}")
-    objdir ("Build/Binaries-Intermediate/" .. OutputDir .. "/Dependencies/%{prj.name}")
+    targetdir ("build/bin/" .. OutputDir .. "/dependencies/%{prj.name}")
+    objdir ("build/bin-int/" .. OutputDir .. "/dependencies/%{prj.name}")
 
     files {
         "dependencies/glfw/include/GLFW/glfw3.h",
@@ -229,7 +236,6 @@ project "glfw"
 
     filter "system:windows"
         systemversion "latest"
-        staticruntime "On"
 
         files {
             "dependencies/glfw/src/win32_init.c",
@@ -248,7 +254,6 @@ project "glfw"
 
     filter "system:linux"
         pic "On"
-        staticruntime "On"
 
         files {
             "dependencies/glfw/src/x11_init.c",
@@ -278,14 +283,14 @@ project "glfw"
 
 -- CIMGUI --
 project "cimgui"
-    location "Build/Build-Files"
+    location "build/build-files"
     kind "StaticLib"
     language "C++"
     cppdialect "C++11"
     
 
-    targetdir ("Build/Binaries/" .. OutputDir .. "/Dependencies/%{prj.name}")
-    objdir ("Build/Binaries-Intermediate/" .. OutputDir .. "/Dependencies/%{prj.name}")
+    targetdir ("build/bin/" .. OutputDir .. "/dependencies/%{prj.name}")
+    objdir ("build/bin-int/" .. OutputDir .. "/dependencies/%{prj.name}")
     
     files {
         "dependencies/cimgui/cimgui.cpp",
@@ -293,12 +298,16 @@ project "cimgui"
         "dependencies/cimgui/imgui/imgui_draw.cpp",
         "dependencies/cimgui/imgui/imgui_demo.cpp",
         "dependencies/cimgui/imgui/imgui_widgets.cpp",
-        "dependencies/cimgui/imgui/imgui_tables.cpp"
+        "dependencies/cimgui/imgui/imgui_tables.cpp",
+        "dependencies/cimgui/imgui/backends/imgui_impl_glfw.cpp",
+        "dependencies/cimgui/imgui/backends/imgui_impl_opengl3.cpp"
     }
     
     includedirs {
         "dependencies/cimgui",
-        "dependencies/cimgui/imgui"
+        "dependencies/cimgui/imgui",
+        "dependencies/cimgui/imgui/backends",
+        "dependencies/glfw/include"
     }
     
     defines {
@@ -331,3 +340,5 @@ project "cimgui"
         runtime "Release"
         optimize "On"
         symbols "Off"
+
+group ""
