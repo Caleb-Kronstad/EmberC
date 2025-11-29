@@ -43,6 +43,22 @@ float getvolume(ma_engine* engine)
 {
     return ma_engine_get_volume(engine) * 100.0f;
 }
+void setpitch(audio* audio, float pitch)
+{
+    ma_sound_set_pitch(audio->sound, pitch / 50.0f);
+}
+float getpitch(audio* audio)
+{
+    return ma_sound_get_pitch(audio->sound) * 50.0f;
+}
+void setloop(audio* audio, bool loop)
+{
+    ma_sound_set_looping(audio->sound, loop);
+}
+bool getloop(audio* audio)
+{
+    return ma_sound_is_looping(audio->sound) == MA_TRUE;
+}
 
 void formattime(float seconds, char* buffer, size_t buffer_size)
 {

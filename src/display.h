@@ -3,7 +3,7 @@
 
 #include "audio.h"
 
-void displayaudioinformation(audio* audio, ma_engine* engine);
-void displayallaudios(audio* audios, audio** current_audio, int count);
+void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop);
+void displayallaudios(audio* audios, audio** current_audio, int count, bool* loop);
 
 #endif

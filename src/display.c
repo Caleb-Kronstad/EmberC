@@ -4,7 +4,7 @@
 #include "ember.h"
 #include "audio.h"
 
-void displayaudioinformation(audio* audio, ma_engine* engine)
+void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop)
 {
     ImVec2_c window_size = igGetWindowSize();
     
@@ -20,9 +20,9 @@ void displayaudioinformation(audio* audio, ma_engine* engine)
     igSetCursorPosX((window_size.x - text_size.x) * 0.5f);
     igText(audio->name);
 
+    // play/pause
     float button_width = 50.0f;
     igSetCursorPosX((window_size.x - button_width) * 0.5f);
-    igSameLine(0, -1);
     if (isaudioplaying(audio))
     {
         if (igButton("Pause", (ImVec2_c){button_width, 0}))
@@ -33,13 +33,31 @@ void displayaudioinformation(audio* audio, ma_engine* engine)
         if (igButton("Play", (ImVec2_c){button_width, 0}))
             startaudio(audio);
     }
-    
+
+    // loop
+    igSetCursorPosX((window_size.x - text_size.x) * 0.5f);
+    igSameLine(0, -1);
+    bool looping = getloop(audio);
+    if (igCheckbox("Loop", &looping))
+    {
+        setloop(audio, looping);
+        *loop = looping;
+    }
+
+    // volume slider
     float slider_width = 200.0f;
     igSetCursorPosX((window_size.x - slider_width) * 0.5f);
     igSetNextItemWidth(slider_width);
     float volume = getvolume(engine);
     if (igSliderFloat("Volume", &volume, 0.0f, 100.0f, "%.f", 0))
         setvolume(engine, volume);
+
+    // pitch slider
+    igSetCursorPosX((window_size.x - slider_width) * 0.5f);
+    igSetNextItemWidth(slider_width);
+    float pitch = getpitch(audio);
+    if (igSliderFloat("Pitch", &pitch, 0.0f, 100.0f, "%.f", 0))
+        setpitch(audio, pitch);
 
     float current_position = getpositioninseconds(audio, engine);
     float duration = getdurationinseconds(audio, engine);
@@ -87,7 +105,7 @@ void displayaudioinformation(audio* audio, ma_engine* engine)
     }
 }
 
-void displayallaudios(audio* audios, audio** current_audio, int count)
+void displayallaudios(audio* audios, audio** current_audio, int count, bool* loop)
 {
     char unique_groups[256][256];  // Max 256 groups
     int group_count = 0;
@@ -130,6 +148,7 @@ void displayallaudios(audio* audios, audio** current_audio, int count)
                         stopaudio(*current_audio);
                     *current_audio = &audios[i];
                     restartaudio(*current_audio);
+                    setloop(*current_audio, true);
                 }
                 
                 igPopID();

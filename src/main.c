@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     int audio_count = 0;
     audio* audios = malloc(audio_capacity * sizeof(audio));
     audio* current_audio = NULL;
+    bool loop = true;
 
     loadaudiosfromdirectory(&audios, audio_engine, &audio_count, &audio_capacity, "data/audios", NULL);
 
@@ -49,14 +50,14 @@ int main(int argc, char *argv[])
         igSpacing();
         igSpacing();
 
-        displayaudioinformation(current_audio, audio_engine);
+        displayaudioinformation(current_audio, audio_engine, &loop);
 
         igSpacing();
         igSpacing();
         igSeparator();
         igSpacing();
 
-        displayallaudios(audios, &current_audio, audio_count);
+        displayallaudios(audios, &current_audio, audio_count, &loop);
         //
 
         // end imgui window
