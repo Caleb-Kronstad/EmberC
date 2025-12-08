@@ -7,6 +7,10 @@
 #include "audio.h"
 #include "display.h"
 
+#ifdef _WIN32
+#pragma comment(linker, "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+#endif
+
 int main(int argc, char *argv[])
 {
     GLFWwindow* window = initwindow("Ember", 1280, 720, false);
