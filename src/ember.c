@@ -4,14 +4,14 @@
 #include "math.h"
 #include "audio.h"
 
-ma_engine* initaudioengine(ma_engine_config* config)
+ma_engine* audio_engine_initialize(ma_engine_config* config)
 {
     ma_engine* engine = malloc(sizeof(ma_engine));
     *config = ma_engine_config_init();
     ma_result result = ma_engine_init(config, engine);
     if (result != MA_SUCCESS)
     {
-        logerrors("Failed to initialize audio engine");
+        log_error_s("Failed to initialize audio engine");
         free(engine);
         return NULL;
     }
@@ -20,7 +20,7 @@ ma_engine* initaudioengine(ma_engine_config* config)
     return engine;
 }
 
-void shutdownaudioengine(ma_engine* engine, audio** audios, int count)
+void audio_engine_shutdown(ma_engine* engine, audio** audios, int count)
 {
     for (int i = 0; i < count; i++)
     {
@@ -35,35 +35,27 @@ void shutdownaudioengine(ma_engine* engine, audio** audios, int count)
     free(engine);
 }
 
-void setvolume(ma_engine* engine, float volume)
+void volume_set(ma_engine* engine, float volume)
 {
     ma_engine_set_volume(engine, volume / 100.0f);
 }
-float getvolume(ma_engine* engine)
+float volume_get(ma_engine* engine)
 {
     return ma_engine_get_volume(engine) * 100.0f;
 }
-void setpitch(audio* audio, float pitch)
+void pitch_set(audio* audio, float pitch)
 {
     ma_sound_set_pitch(audio->sound, pitch / 50.0f);
 }
-float getpitch(audio* audio)
+float pitch_get(audio* audio)
 {
     return ma_sound_get_pitch(audio->sound) * 50.0f;
 }
-void setloop(audio* audio, bool loop)
+void loop_set(audio* audio, bool loop)
 {
     ma_sound_set_looping(audio->sound, loop);
 }
-bool getloop(audio* audio)
+bool loop_get(audio* audio)
 {
     return ma_sound_is_looping(audio->sound) == MA_TRUE;
-}
-
-void formattime(float seconds, char* buffer, size_t buffer_size)
-{
-    int total_seconds = (int)seconds;
-    int minutes = total_seconds / 60;
-    int secs = total_seconds % 60;
-    (void)snprintf(buffer, buffer_size, "%d:%02d", minutes, secs);
 }

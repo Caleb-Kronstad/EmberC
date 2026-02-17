@@ -1,9 +1,9 @@
 #ifndef EMBER_MATH_H
 #define EMBER_MATH_H
 
-float calcdt(float* lf);
-float clampf(float v, float min, float max);
-int clampi(int v, int min, int max);
-double clampd(double v, double min, double max);
+float calculate_delta_time(float* lf);
+float clamp_f(float v, float min, float max);
+int clamp_i(int v, int min, int max);
+double clamp_d(double v, double min, double max);
 
 #endif

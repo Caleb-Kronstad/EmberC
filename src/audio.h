@@ -11,23 +11,24 @@ typedef struct audio
     ma_sound* sound;
 } audio;
 
-void resizeaudios(audio** audios, int* capacity, int count);
-void addaudio(audio** audios, ma_engine* engine, int* count, int* capacity, int id, char* name, char* author, char* group, char* path);
-void loadaudiosfromdirectory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name);
+void audio_list_resize(audio** audios, int* capacity, int count);
+void audio_list_add_audio(audio** audios, ma_engine* engine, int* count, int* capacity, int id, char* name, char* author, char* group, char* path);
+void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name);
+void audio_list_load_single_with_directory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* target_file_path, audio** initial_audio);
 
-ma_uint64 getdurationinframes(audio* audio);
-ma_uint64 getpositioninframes(audio* audio);
-float getdurationinseconds(audio* audio, ma_engine* engine);
-float getpositioninseconds(audio* audio, ma_engine* engine);
-bool seektoframe(audio* audio, ma_uint64 frame_index);
-bool seektotime(audio* audio, ma_engine* engine, float time_in_seconds);
+ma_uint64 audio_duration_in_frames(audio* audio);
+ma_uint64 audio_position_in_frames(audio* audio);
+float audio_duration_in_seconds(audio* audio, ma_engine* engine);
+float audio_position_in_seconds(audio* audio, ma_engine* engine);
+bool audio_seek_to_frame(audio* audio, ma_uint64 frame_index);
+bool audio_seek_to_time(audio* audio, ma_engine* engine, float time_in_seconds);
 
-void startaudio(audio* audio);
-void restartaudio(audio* audio);
-void stopaudio(audio* audio);
-bool isaudioplaying(audio* audio);
-bool isaudioended(audio* audio);
+void audio_start(audio* audio);
+void audio_restart(audio* audio);
+void audio_stop(audio* audio);
+bool audio_playing(audio* audio);
+bool audio_ended(audio* audio);
 
-void formattime(float seconds, char* buffer, size_t buffer_size);
+void audio_time_format(float seconds, char* buffer, size_t buffer_size);
 
 #endif

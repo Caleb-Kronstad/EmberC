@@ -29,6 +29,7 @@
 // PLATFORM SPECIFIC INCLUDES //
 #ifdef EMBER_PLATFORM_WINDOWS
 #include <windows.h>
+#include <ShlObj.h>
 #endif
 
 // DEPENDENCY INCLUDES //
@@ -38,6 +39,7 @@
 #include <cimgui_impl.h>
 #include <miniaudio.h>
 #include <cJSON.h>
+#include <stb_image.h>
 //
 
 #endif

@@ -4,43 +4,54 @@
 #include "ember.h"
 #include "audio.h"
 
-void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop)
+void display_audio_information(audio* audio, ma_engine* engine, bool* loop, float* pitch, style* style)
 {
     ImVec2_c window_size = igGetWindowSize();
     
+    igPushStyleColor_Vec4(ImGuiCol_Text, style->highlight_primary);
+    ImVec2_c text_size = igCalcTextSize("Ember", NULL, false, -1.0f);
+    igSetCursorPosX((window_size.x - text_size.x) * 0.5f);
+    igText("Ember");
+    igPopStyleColor(1);
+    
+    igSpacing();
+    igSpacing();
+    igSpacing();
+    igSpacing();
+    
     if (!audio)
     {
-        ImVec2_c text_size = igCalcTextSize("Select a song to play", NULL, false, -1.0f);
+        text_size = igCalcTextSize("Select a song to play", NULL, false, -1.0f);
         igSetCursorPosX((window_size.x - text_size.x) * 0.5f);
         igText("Select a song to play");
         return;
     }
     
-    ImVec2_c text_size = igCalcTextSize(audio->name, NULL, false, -1.0f);
+    text_size = igCalcTextSize(audio->name, NULL, false, -1.0f);
     igSetCursorPosX((window_size.x - text_size.x) * 0.5f);
     igText(audio->name);
 
     // play/pause
     float button_width = 50.0f;
     igSetCursorPosX((window_size.x - button_width) * 0.5f);
-    if (isaudioplaying(audio))
+    if (audio_playing(audio))
     {
         if (igButton("Pause", (ImVec2_c){button_width, 0}))
-            stopaudio(audio);
+            audio_stop(audio);
     }
     else
     {
         if (igButton("Play", (ImVec2_c){button_width, 0}))
-            startaudio(audio);
+            audio_start(audio);
     }
 
     // loop
     igSetCursorPosX((window_size.x - text_size.x) * 0.5f);
     igSameLine(0, -1);
-    bool looping = getloop(audio);
+    bool looping = loop_get(audio);
     if (igCheckbox("Loop", &looping))
     {
-        setloop(audio, looping);
+        loop_set(audio, looping);
         *loop = looping;
     }
 
@@ -48,19 +59,22 @@ void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop)
     float slider_width = 200.0f;
     igSetCursorPosX((window_size.x - slider_width) * 0.5f);
     igSetNextItemWidth(slider_width);
-    float volume = getvolume(engine);
+    float volume = volume_get(engine);
     if (igSliderFloat("Volume", &volume, 0.0f, 100.0f, "%.f", 0))
-        setvolume(engine, volume);
+        volume_set(engine, volume);
 
     // pitch slider
     igSetCursorPosX((window_size.x - slider_width) * 0.5f);
     igSetNextItemWidth(slider_width);
-    float pitch = getpitch(audio);
-    if (igSliderFloat("Pitch", &pitch, 0.0f, 100.0f, "%.f", 0))
-        setpitch(audio, pitch);
+    float current_pitch = pitch_get(audio);
+    if (igSliderFloat("Pitch", &current_pitch, 0.0f, 100.0f, "%.f", 0))
+    {
+        pitch_set(audio, current_pitch);
+        *pitch = current_pitch;
+    }
 
-    float current_position = getpositioninseconds(audio, engine);
-    float duration = getdurationinseconds(audio, engine);
+    float current_position = audio_position_in_seconds(audio, engine);
+    float duration = audio_duration_in_seconds(audio, engine);
     float progress_bar_offset = window_size.x / 2.0f - 250.0f;
     if (duration >= 0.0f)
     {
@@ -69,8 +83,8 @@ void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop)
         float progress = current_position / duration;
 
         char time_current[16], time_duration[16], time_label[64];
-        formattime(current_position, time_current, sizeof(time_current));
-        formattime(duration, time_duration, sizeof(time_duration));
+        audio_time_format(current_position, time_current, sizeof(time_current));
+        audio_time_format(duration, time_duration, sizeof(time_duration));
         (void)snprintf(time_label, sizeof(time_label), "%s / %s", time_current, time_duration);
     
         float progress_width = window_size.x - (progress_bar_offset*2) - 32.0f;
@@ -88,7 +102,7 @@ void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop)
             float new_progress = mouse_x / progress_width;
             if (new_progress < 0.0f) new_progress = 0.0f;
             if (new_progress > 1.0f) new_progress = 1.0f;
-            seektotime(audio, engine, new_progress * duration);
+            audio_seek_to_time(audio, engine, new_progress * duration);
         }
         
         float grab_size = 10.0f;
@@ -105,7 +119,7 @@ void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop)
     }
 }
 
-void displayallaudios(audio* audios, audio** current_audio, int count, bool* loop)
+void display_all_audios(audio* audios, audio** current_audio, int count, bool* loop, float* pitch, style* style)
 {
     char unique_groups[256][256];  // Max 256 groups
     int group_count = 0;
@@ -131,7 +145,7 @@ void displayallaudios(audio* audios, audio** current_audio, int count, bool* loo
     
     for (int g = 0; g < group_count; g++)
     {
-        igPushStyleColor_Vec4(ImGuiCol_Text, (ImVec4_c){141.0f/255.0f, 124.0f/255.0f, 192.0f/255.0f, 1.0f});
+        igPushStyleColor_Vec4(ImGuiCol_Text, style->highlight_secondary);
         igText(unique_groups[g]);
         igPopStyleColor(1);
         igSpacing();
@@ -145,10 +159,11 @@ void displayallaudios(audio* audios, audio** current_audio, int count, bool* loo
                 if (igSelectable_Bool(audios[i].name, *current_audio == &audios[i], 0, (ImVec2_c){300, 15}))
                 {
                     if (*current_audio)
-                        stopaudio(*current_audio);
+                        audio_stop(*current_audio);
                     *current_audio = &audios[i];
-                    restartaudio(*current_audio);
-                    setloop(*current_audio, true);
+                    audio_restart(*current_audio);
+                    loop_set(*current_audio, true);
+                    pitch_set(*current_audio, *pitch);
                 }
                 
                 igPopID();

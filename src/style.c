@@ -1,56 +1,53 @@
 #include "includes.h"
 #include "style.h"
 
-void setimguistyle(
-    ImVec4_c text_primary, ImVec4_c background_primary,
-    ImVec4_c background_secondary, ImVec4_c background_tertiary,
-    ImVec4_c highlight_primary, ImVec4_c highlight_secondary)
+void style_set(style* style)
 {
-    ImGuiStyle* style = igGetStyle();
-    ImVec4_c* colors = style->Colors;
+    ImGuiStyle* imgui_style = igGetStyle();
+    ImVec4_c* colors = imgui_style->Colors;
 
-    colors[ImGuiCol_Text] = text_primary;
-    colors[ImGuiCol_WindowBg] = background_primary;
-    colors[ImGuiCol_Border] = background_tertiary;
-    colors[ImGuiCol_FrameBg] = background_secondary;
-    colors[ImGuiCol_FrameBgHovered] = background_tertiary;
-    colors[ImGuiCol_FrameBgActive] = highlight_secondary;
-    colors[ImGuiCol_TitleBg] = background_secondary;
-    colors[ImGuiCol_TitleBgActive] = background_secondary;
-    colors[ImGuiCol_TitleBgCollapsed] = background_secondary;
-    colors[ImGuiCol_SliderGrab] = highlight_primary;
-    colors[ImGuiCol_SliderGrabActive] = highlight_primary;
-    colors[ImGuiCol_Header] = background_tertiary;
-    colors[ImGuiCol_HeaderHovered] = highlight_primary;
-    colors[ImGuiCol_HeaderActive] = highlight_primary;
-    colors[ImGuiCol_TextSelectedBg] = highlight_primary;
-    colors[ImGuiCol_CheckMark] = highlight_primary;
-    colors[ImGuiCol_Button] = background_tertiary;
-    colors[ImGuiCol_ButtonHovered] = highlight_secondary;
-    colors[ImGuiCol_ButtonActive] = highlight_primary;
-    colors[ImGuiCol_Separator] = background_tertiary;
-    colors[ImGuiCol_SeparatorHovered] = highlight_primary;
-    colors[ImGuiCol_SeparatorActive] = highlight_primary;
-    colors[ImGuiCol_ResizeGrip] = highlight_primary;
-    colors[ImGuiCol_ResizeGripHovered] = highlight_primary;
-    colors[ImGuiCol_ResizeGripActive] = highlight_primary;
-    colors[ImGuiCol_Tab] = background_primary;
-    colors[ImGuiCol_TabHovered] = background_tertiary;
-    colors[ImGuiCol_DockingPreview] = highlight_primary;
-    colors[ImGuiCol_DockingEmptyBg] = background_secondary;
-    colors[ImGuiCol_PlotHistogram] = highlight_secondary;
-    colors[ImGuiCol_PlotHistogramHovered] = highlight_primary;
-    colors[ImGuiCol_DragDropTarget] = highlight_secondary;
+    colors[ImGuiCol_Text] = style->text_primary;
+    colors[ImGuiCol_WindowBg] = style->background_primary;
+    colors[ImGuiCol_Border] = style->background_tertiary;
+    colors[ImGuiCol_FrameBg] = style->background_secondary;
+    colors[ImGuiCol_FrameBgHovered] = style->background_tertiary;
+    colors[ImGuiCol_FrameBgActive] = style->highlight_secondary;
+    colors[ImGuiCol_TitleBg] = style->background_secondary;
+    colors[ImGuiCol_TitleBgActive] = style->background_secondary;
+    colors[ImGuiCol_TitleBgCollapsed] = style->background_secondary;
+    colors[ImGuiCol_SliderGrab] = style->highlight_primary;
+    colors[ImGuiCol_SliderGrabActive] = style->highlight_primary;
+    colors[ImGuiCol_Header] = style->background_tertiary;
+    colors[ImGuiCol_HeaderHovered] = style->highlight_primary;
+    colors[ImGuiCol_HeaderActive] = style->highlight_primary;
+    colors[ImGuiCol_TextSelectedBg] = style->highlight_primary;
+    colors[ImGuiCol_CheckMark] = style->highlight_primary;
+    colors[ImGuiCol_Button] = style->background_tertiary;
+    colors[ImGuiCol_ButtonHovered] = style->highlight_secondary;
+    colors[ImGuiCol_ButtonActive] = style->highlight_primary;
+    colors[ImGuiCol_Separator] = style->background_tertiary;
+    colors[ImGuiCol_SeparatorHovered] = style->highlight_primary;
+    colors[ImGuiCol_SeparatorActive] = style->highlight_primary;
+    colors[ImGuiCol_ResizeGrip] = style->highlight_primary;
+    colors[ImGuiCol_ResizeGripHovered] = style->highlight_primary;
+    colors[ImGuiCol_ResizeGripActive] = style->highlight_primary;
+    colors[ImGuiCol_Tab] = style->background_primary;
+    colors[ImGuiCol_TabHovered] = style->background_tertiary;
+    colors[ImGuiCol_DockingPreview] = style->highlight_primary;
+    colors[ImGuiCol_DockingEmptyBg] = style->background_secondary;
+    colors[ImGuiCol_PlotHistogram] = style->highlight_secondary;
+    colors[ImGuiCol_PlotHistogramHovered] = style->highlight_primary;
+    colors[ImGuiCol_DragDropTarget] = style->highlight_secondary;
 
-    style->WindowRounding = 0.0f;
-    style->FrameRounding = 0.0f;
-    style->GrabRounding = 0.0f;
-    style->PopupRounding = 0.0f;
-    style->TabRounding = 0.0f;
-    style->WindowMenuButtonPosition = ImGuiDir_Right;
-    style->ScrollbarSize = 10.0f;
-    style->GrabMinSize = 10.0f;
-    style->DockingSeparatorSize = 1.0f;
-    style->SeparatorTextBorderSize = 2.0f;
-    style->WindowPadding = (ImVec2){0.0f, 0.0f};
+    imgui_style->WindowRounding = 0.0f;
+    imgui_style->FrameRounding = 0.0f;
+    imgui_style->GrabRounding = 0.0f;
+    imgui_style->PopupRounding = 0.0f;
+    imgui_style->TabRounding = 0.0f;
+    imgui_style->WindowMenuButtonPosition = ImGuiDir_Right;
+    imgui_style->ScrollbarSize = 10.0f;
+    imgui_style->GrabMinSize = 10.0f;
+    imgui_style->DockingSeparatorSize = 1.0f;
+    imgui_style->SeparatorTextBorderSize = 2.0f;
+    imgui_style->WindowPadding = (ImVec2){0.0f, 0.0f};
 }

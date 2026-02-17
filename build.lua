@@ -18,6 +18,7 @@ project "ember"
     files {
         "src/**.h",
         "src/**.c",
+        "src/**.rc"
     }
 
     defines {
@@ -32,7 +33,8 @@ project "ember"
         "dependencies/glfw/include",
         "dependencies/miniaudio",
         "dependencies/cimgui",
-        "dependencies/cjson"
+        "dependencies/cjson",
+        "dependencies/stbimage"
     }
     
     links {
@@ -40,7 +42,8 @@ project "ember"
         "glad",
         "miniaudio",
         "cimgui",
-        "cjson"
+        "cjson",
+        "stbimage"
     }
     
     filter "system:windows"
@@ -83,6 +86,8 @@ project "ember"
         optimize "On"
         symbols "Off"
 
+
+---------- DEPENDENCIES ----------
 group "dependencies"
 
 -- MINIAUDIO --
@@ -341,4 +346,42 @@ project "cimgui"
         optimize "On"
         symbols "Off"
 
+-- STBIMAGE --
+project "stbimage"
+    location "build/build-files"
+    kind "StaticLib"
+    language "C++"
+    cppdialect "C++11"
+    
+
+    targetdir ("build/bin/" .. OutputDir .. "/dependencies/%{prj.name}")
+    objdir ("build/bin-int/" .. OutputDir .. "/dependencies/%{prj.name}")
+    
+    files {
+        "dependencies/stbimage/stb_image.h",
+        "dependencies/stbimage/stb_image.cpp",
+    }
+    
+    includedirs {
+        "dependencies/stbimage"
+    }
+    
+    filter "system:windows"
+        systemversion "latest"
+    
+    filter "system:linux"
+        pic "On"
+    
+    filter "configurations:Debug"
+        defines { "DEBUG" }
+        runtime "Debug"
+        symbols "On"
+    
+    filter "configurations:Release"
+        defines { "RELEASE" }
+        runtime "Release"
+        optimize "On"
+        symbols "Off"
+
 group ""
+---------- END DEPENDENCIES ----------

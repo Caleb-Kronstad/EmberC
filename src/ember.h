@@ -3,13 +3,13 @@
 
 #include "audio.h"
 
-ma_engine* initaudioengine(ma_engine_config* config);
-void shutdownaudioengine(ma_engine* engine, audio** audios, int count);
-void setvolume(ma_engine* engine, float volume);
-float getvolume(ma_engine* engine);
-void setpitch(audio* audio, float pitch);
-float getpitch(audio* audio);
-void setloop(audio* audio, bool loop);
-bool getloop(audio* audio);
+ma_engine* audio_engine_initialize(ma_engine_config* config);
+void audio_engine_shutdown(ma_engine* engine, audio** audios, int count);
+void volume_set(ma_engine* engine, float volume);
+float volume_get(ma_engine* engine);
+void pitch_set(audio* audio, float pitch);
+float pitch_get(audio* audio);
+void loop_set(audio* audio, bool loop);
+bool loop_get(audio* audio);
 
 #endif

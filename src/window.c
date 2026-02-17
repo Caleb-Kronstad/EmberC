@@ -1,11 +1,11 @@
 ﻿#include "includes.h"
 #include "window.h"
 
-GLFWwindow* initwindow(const char* title, int width, int height, bool fullscreen)
+GLFWwindow* window_initialize(const char* title, int width, int height, bool fullscreen)
 {
     if (!glfwInit())
     {
-        logerrors("Failed to initialize GLFW");
+        log_error_s("Failed to initialize GLFW");
         return NULL;
     }
 
@@ -21,7 +21,7 @@ GLFWwindow* initwindow(const char* title, int width, int height, bool fullscreen
 
     if (!window)
     {
-        logerrors("Failed to create GLFW window");
+        log_error_s("Failed to create GLFW window");
         return NULL;
     }
 
@@ -29,7 +29,7 @@ GLFWwindow* initwindow(const char* title, int width, int height, bool fullscreen
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        logerrors("Failed to initialize GLAD");
+        log_error_s("Failed to initialize GLAD");
         return NULL;
     }
 
@@ -42,6 +42,13 @@ GLFWwindow* initwindow(const char* title, int width, int height, bool fullscreen
     {
         glViewport(0, 0, width, height);
     }
+    
+    GLFWimage images[1];
+    stbi_set_flip_vertically_on_load(0);
+    int channels = 4;
+    images[0].pixels = stbi_load("assets/icons/ember-logo.png", &images[0].width, &images[0].height, &channels, 0);
+    glfwSetWindowIcon(window, 1, images);
+    stbi_image_free(images[0].pixels);
 
     igCreateContext(NULL);
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -50,7 +57,7 @@ GLFWwindow* initwindow(const char* title, int width, int height, bool fullscreen
     return window;
 }
 
-void beginwindow(GLFWwindow* window)
+void window_begin(GLFWwindow* window)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -65,7 +72,7 @@ void beginwindow(GLFWwindow* window)
     igEnd();
 }
 
-void endwindow(GLFWwindow* window)
+void window_end(GLFWwindow* window)
 {
     igRender();
     igEndFrame();
@@ -84,7 +91,7 @@ void endwindow(GLFWwindow* window)
     glfwPollEvents();
 }
 
-void shutdownwindow(GLFWwindow* window)
+void window_shutdown(GLFWwindow* window)
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

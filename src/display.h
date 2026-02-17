@@ -2,8 +2,9 @@
 #define EMBER_DISPLAY_H
 
 #include "audio.h"
+#include "style.h"
 
-void displayaudioinformation(audio* audio, ma_engine* engine, bool* loop);
-void displayallaudios(audio* audios, audio** current_audio, int count, bool* loop);
+void display_audio_information(audio* audio, ma_engine* engine, bool* loop, float* pitch, style* style);
+void display_all_audios(audio* audios, audio** current_audio, int count, bool* loop, float* pitch, style* style);
 
 #endif
