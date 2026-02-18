@@ -1,6 +1,8 @@
 #include "includes.h"
 #include "audio.h"
 
+#include "platform.h"
+
 void audio_list_resize(audio** audios, int* capacity, int count)
 {
     if (count >= *capacity)
@@ -202,9 +204,8 @@ void audio_list_load_single_with_directory(
     char parent_dir[1024] = {0};
 
 #ifdef EMBER_PLATFORM_WINDOWS
-#include "file/filemanager.h"
-    file_manager_extract_filename(target_file_path, filename, sizeof(filename));
-    file_manager_extract_parent_directory(target_file_path, parent_dir, sizeof(parent_dir));
+    windows_file_manager_extract_filename(target_file_path, filename, sizeof(filename));
+    windows_file_manager_extract_parent_directory(target_file_path, parent_dir, sizeof(parent_dir));
 #else
     const char* last_slash = strrchr(target_file_path, '/');
     if (last_slash)

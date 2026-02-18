@@ -7,11 +7,7 @@
 #include "audio.h"
 #include "persist.h"
 #include "display.h"
-
-#ifdef EMBER_PLATFORM_WINDOWS
-#include "file/registry.h"
-#include "file/filemanager.h"
-#endif
+#include "platform.h"
 
 #ifdef _WIN32
 #pragma comment(linker, "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
@@ -19,50 +15,12 @@
 
 int main(int argc, char* argv[])
 {
-    enum startup_mode { MODE_DIRECTORY_SCAN, MODE_SINGLE_FILE };
     enum startup_mode mode = MODE_DIRECTORY_SCAN;
     char target_file_path[1024] = {0};
     bool show_registration_prompt = false;
-
-#ifdef EMBER_PLATFORM_WINDOWS
-    if (argc > 1)
-    {
-        char* normalized = file_manager_normalize_path(argv[1]);
-        if (normalized)
-        {
-            if (file_manager_is_valid_audio_file(normalized) &&
-                file_manager_file_exists(normalized))
-            {
-                mode = MODE_SINGLE_FILE;
-                strncpy(target_file_path, normalized, sizeof(target_file_path) - 1);
-                log_info_s("Opening file from command line");
-            }
-            else
-            {
-                log_error_s("Invalid audio file provided, falling back to directory mode");
-            }
-            free(normalized);
-        }
-    }
-    else
-    {
-        if (!registry_is_registered())
-        {
-            show_registration_prompt = true;
-        }
-    }
     
-    char exe_dir[1024];
-    if (GetModuleFileNameA(NULL, exe_dir, sizeof(exe_dir)) != 0)
-    {
-        char* last_slash = strrchr(exe_dir, '\\');
-        if (last_slash)
-        {
-            *last_slash = '\0';
-            SetCurrentDirectoryA(exe_dir);
-            log_info_s("Set working directory to exe location");
-        }
-    }
+#ifdef EMBER_PLATFORM_WINDOWS
+    windows_initialize(argc, argv, &mode, target_file_path, &show_registration_prompt);
 #endif
 
     ember_config load_config = config_initialize_defaults();
@@ -156,37 +114,7 @@ int main(int argc, char* argv[])
         igUnindent(16.0f);
         
 #ifdef EMBER_PLATFORM_WINDOWS
-        if (show_registration_prompt) {
-            igOpenPopup_Str("RegisterEmberC", 0);
-            show_registration_prompt = false;
-        }
-
-        if (igBeginPopupModal("RegisterEmberC", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-            igText("Would you like to register EmberC as your default audio player?");
-            igText("This will associate .mp3, .wav, and .ogg files with EmberC.");
-            igSpacing();
-
-            if (igButton("Yes, Register", (ImVec2_c){120, 0})) {
-                char exe_path[1024];
-                GetModuleFileNameA(NULL, exe_path, sizeof(exe_path));
-
-                if (registry_register_file_associations(exe_path)) {
-                    log_info_s("EmberC registered successfully");
-                } else {
-                    log_error_s("Failed to register EmberC - try running as administrator");
-                }
-
-                igCloseCurrentPopup();
-            }
-
-            igSameLine(0, -1);
-
-            if (igButton("No, Skip", (ImVec2_c){120, 0})) {
-                igCloseCurrentPopup();
-            }
-
-            igEndPopup();
-        }
+        windows_registration_prompt(&show_registration_prompt);
 #endif
         
         igEnd();

@@ -1,0 +1,19 @@
+#ifndef EMBER_PLATFORM_H
+#define EMBER_PLATFORM_H
+
+enum startup_mode { MODE_DIRECTORY_SCAN, MODE_SINGLE_FILE };
+
+void windows_initialize(int argc, char* argv[], enum startup_mode* mode, char* target_file_path, bool* show_registration_prompt);
+void windows_registration_prompt(bool* show_registration_prompt);
+
+bool windows_file_manager_is_valid_audio_file(const char* path);
+char* windows_file_manager_normalize_path(const char* raw_path);
+bool windows_file_manager_file_exists(const char* path);
+void windows_file_manager_extract_filename(const char* path, char* out, size_t out_size);
+void windows_file_manager_extract_parent_directory(const char* path, char* out, size_t out_size);
+
+bool windows_registry_is_registered(void);
+bool windows_registry_register_file_associations(const char* exe_path);
+bool windows_registry_unregister_file_associations(void);
+
+#endif
