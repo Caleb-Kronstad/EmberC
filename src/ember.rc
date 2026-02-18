@@ -3,7 +3,7 @@
   // Icon resource
   IDI_ICON1 ICON "..\\assets\\icons\\ember-logo.ico"
 
-  // Version information (optional but recommended)
+  // Version information
   1 VERSIONINFO
   FILEVERSION 1,0,0,0
   PRODUCTVERSION 1,0,0,0

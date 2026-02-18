@@ -107,8 +107,9 @@ int main(int argc, char* argv[])
         loop_set(current_audio, loop);
         pitch_set(current_audio, pitch);
     }
-
-    //audio_list_load_from_directory(&audio_list, audio_engine, &audio_count, &audio_capacity, "data/audios", NULL);
+    
+    image logo;
+    image_load("assets/icons/ember-logo.png", &logo);
 
     style style = {
         (ImVec4_c){255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f},
@@ -141,7 +142,7 @@ int main(int argc, char* argv[])
         igSpacing();
         igSpacing();
 
-        display_audio_information(current_audio, audio_engine, &loop, &pitch, &style);
+        display_audio_information(current_audio, audio_engine, &loop, &pitch, &style, &logo);
 
         igSpacing();
         igSpacing();

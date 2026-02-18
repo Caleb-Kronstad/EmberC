@@ -3,12 +3,12 @@
 
 typedef struct audio
 {
+    ma_sound* sound;
     int id;
     char name[256];
     char author[256];
     char group[256];
     char path[512];
-    ma_sound* sound;
 } audio;
 
 void audio_list_resize(audio** audios, int* capacity, int count);

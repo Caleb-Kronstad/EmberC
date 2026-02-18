@@ -4,9 +4,12 @@
 #include "ember.h"
 #include "audio.h"
 
-void display_audio_information(audio* audio, ma_engine* engine, bool* loop, float* pitch, style* style)
+void display_audio_information(audio* audio, ma_engine* engine, bool* loop, float* pitch, style* style, image* logo)
 {
     ImVec2_c window_size = igGetWindowSize();
+    
+    igSetCursorPosX((window_size.x - (float)logo->width) * 0.5f);
+    image_render(logo);
     
     igPushStyleColor_Vec4(ImGuiCol_Text, style->highlight_primary);
     ImVec2_c text_size = igCalcTextSize("Ember", NULL, false, -1.0f);
@@ -162,7 +165,7 @@ void display_all_audios(audio* audios, audio** current_audio, int count, bool* l
                         audio_stop(*current_audio);
                     *current_audio = &audios[i];
                     audio_restart(*current_audio);
-                    loop_set(*current_audio, true);
+                    loop_set(*current_audio, *loop);
                     pitch_set(*current_audio, *pitch);
                 }
                 
