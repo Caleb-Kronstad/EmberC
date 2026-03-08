@@ -8,7 +8,7 @@
 #define PROGID "EmberC.AudioFile"
 #define PROGID_DESC "EmberC Audio File"
 
-void windows_initialize(int argc, char* argv[], enum startup_mode* mode, char* target_file_path, bool* show_registration_prompt)
+void windows_initialize(int argc, char* argv[], enum startup_mode* mode, char* target_file_path, size_t target_file_path_size, bool* show_registration_prompt)
 {
     if (argc > 1)
     {
@@ -19,7 +19,8 @@ void windows_initialize(int argc, char* argv[], enum startup_mode* mode, char* t
                 windows_file_manager_file_exists(normalized))
             {
                 *mode = MODE_SINGLE_FILE;
-                strncpy(target_file_path, normalized, sizeof(target_file_path) - 1);
+                strncpy(target_file_path, normalized, target_file_path_size - 1);
+                target_file_path[target_file_path_size - 1] = '\0';
                 log_info_s("Opening file from command line");
             }
             else

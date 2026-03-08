@@ -13,7 +13,7 @@ typedef struct audio
 
 void audio_list_resize(audio** audios, int* capacity, int count);
 void audio_list_add_audio(audio** audios, ma_engine* engine, int* count, int* capacity, int id, char* name, char* author, char* group, char* path);
-void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name);
+void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name, bool recursive);
 void audio_list_load_single_with_directory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* target_file_path, audio** initial_audio);
 
 ma_uint64 audio_duration_in_frames(audio* audio);

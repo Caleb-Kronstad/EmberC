@@ -3,7 +3,7 @@
 
 enum startup_mode { MODE_DIRECTORY_SCAN, MODE_SINGLE_FILE };
 
-void windows_initialize(int argc, char* argv[], enum startup_mode* mode, char* target_file_path, bool* show_registration_prompt);
+void windows_initialize(int argc, char* argv[], enum startup_mode* mode, char* target_file_path, size_t target_file_path_size, bool* show_registration_prompt);
 void windows_registration_prompt(bool* show_registration_prompt);
 
 bool windows_file_manager_is_valid_audio_file(const char* path);

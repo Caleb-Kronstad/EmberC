@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     bool show_registration_prompt = false;
     
 #ifdef EMBER_PLATFORM_WINDOWS
-    windows_initialize(argc, argv, &mode, target_file_path, &show_registration_prompt);
+    windows_initialize(argc, argv, &mode, target_file_path, sizeof(target_file_path), &show_registration_prompt);
 #endif
 
     ember_config load_config = config_initialize_defaults();
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     float pitch = load_config.pitch;
     volume_set(audio_engine, load_config.volume);
 
-    int audio_capacity = 64;
+    int audio_capacity = 128;
     int audio_count = 0;
     audio* audio_list = malloc(audio_capacity * sizeof(audio));
     audio* current_audio = NULL;
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     {
         audio_list_load_from_directory(
             &audio_list, audio_engine, &audio_count, &audio_capacity,
-            "data/audios", NULL);
+            "data/audios", NULL, true);
     }
 
     if (initial_audio_to_play)
@@ -67,6 +67,9 @@ int main(int argc, char* argv[])
     }
     
     image logo;
+    logo.id = 0;
+    logo.width = 100;
+    logo.height = 100;
     image_load("assets/icons/ember-logo.png", &logo);
 
     style style = {

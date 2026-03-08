@@ -48,8 +48,7 @@ void audio_list_add_audio(audio** audios, ma_engine* engine, int* count, int* ca
     (*count)++;
 }
 
-void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* count, int* capacity,
-                                    const char* directory_path, const char* group_name)
+void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name, bool recursive)
 {
     char search_path[1024];
     (void)snprintf(search_path, sizeof(search_path), "%s\\*", directory_path);
@@ -78,16 +77,14 @@ void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* coun
     {
         if (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
-            // Skip . and ..
+            if (!recursive) continue;
             if (strcmp(find_data.cFileName, ".") == 0 || strcmp(find_data.cFileName, "..") == 0)
                 continue;
 
-            // Build subdirectory path
             char subdir_path[1024];
             snprintf(subdir_path, sizeof(subdir_path), "%s\\%s", directory_path, find_data.cFileName);
 
-            // Recursively load from subdirectory, using its name as the group
-            audio_list_load_from_directory(audios, engine, count, capacity, subdir_path, find_data.cFileName);
+            audio_list_load_from_directory(audios, engine, count, capacity, subdir_path, find_data.cFileName, true);
             continue;
         }
 
@@ -233,11 +230,11 @@ void audio_list_load_single_with_directory(
                          initial_id, filename, "Unknown", "Current Folder",
                          (char*)target_file_path);
 
+    audio_list_load_from_directory(audios, engine, count, capacity,
+                                     parent_dir, "Current Folder", false);
+
     if (*count > initial_id && initial_audio)
     {
         *initial_audio = &(*audios)[initial_id];
     }
-
-    audio_list_load_from_directory(audios, engine, count, capacity,
-                                   parent_dir, "Current Folder");
 }
