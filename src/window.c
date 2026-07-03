@@ -47,10 +47,50 @@ GLFWwindow* window_initialize(const char* title, int width, int height, bool ful
     stbi_set_flip_vertically_on_load(0);
     int channels = 4;
     images[0].pixels = stbi_load("assets/icons/ember-logo.png", &images[0].width, &images[0].height, &channels, 0);
-    glfwSetWindowIcon(window, 1, images);
-    stbi_image_free(images[0].pixels);
+    if (images[0].pixels)
+    {
+        glfwSetWindowIcon(window, 1, images);
+        stbi_image_free(images[0].pixels);
+    }
 
     igCreateContext(NULL);
+
+#ifdef EMBER_PLATFORM_LINUX
+    {
+        static char ini_path[PATH_MAX];
+        char exe_path[PATH_MAX];
+        ssize_t exe_len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+        if (exe_len != -1)
+        {
+            exe_path[exe_len] = '\0';
+            char* last_slash = strrchr(exe_path, '/');
+            if (last_slash)
+            {
+                *last_slash = '\0';
+                snprintf(ini_path, sizeof(ini_path), "%s/imgui.ini", exe_path);
+                igGetIO_Nil()->IniFilename = ini_path;
+            }
+        }
+    }
+#endif
+
+#ifdef EMBER_PLATFORM_WINDOWS
+    {
+        static char ini_path[MAX_PATH];
+        char exe_path[MAX_PATH];
+        if (GetModuleFileNameA(NULL, exe_path, sizeof(exe_path)) != 0)
+        {
+            char* last_slash = strrchr(exe_path, '\\');
+            if (last_slash)
+            {
+                *last_slash = '\0';
+                snprintf(ini_path, sizeof(ini_path), "%s\\imgui.ini", exe_path);
+                igGetIO_Nil()->IniFilename = ini_path;
+            }
+        }
+    }
+#endif
+
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
 

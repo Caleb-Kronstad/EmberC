@@ -50,6 +50,7 @@ void audio_list_add_audio(audio** audios, ma_engine* engine, int* count, int* ca
 
 void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* count, int* capacity, const char* directory_path, const char* group_name, bool recursive)
 {
+#ifdef EMBER_PLATFORM_WINDOWS
     char search_path[1024];
     (void)snprintf(search_path, sizeof(search_path), "%s\\*", directory_path);
     WIN32_FIND_DATAA find_data;
@@ -107,6 +108,64 @@ void audio_list_load_from_directory(audio** audios, ma_engine* engine, int* coun
     while (FindNextFileA(hFind, &find_data) != 0);
 
     FindClose(hFind);
+#endif
+
+#ifdef EMBER_PLATFORM_LINUX
+    DIR* dir = opendir(directory_path);
+    if (!dir)
+    {
+        log_error_s("Failed to open directory");
+        return;
+    }
+
+    int id = 0;
+    if (*count > 0)
+    {
+        int max_id = (*audios)[0].id;
+        for (int i = 1; i < *count; i++)
+        {
+            if ((*audios)[i].id > max_id)
+                max_id = (*audios)[i].id;
+        }
+        id = max_id + 1;
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        char full_path[1024];
+        snprintf(full_path, sizeof(full_path), "%s/%s", directory_path, entry->d_name);
+
+        struct stat st;
+        if (stat(full_path, &st) != 0)
+            continue;
+
+        if (S_ISDIR(st.st_mode))
+        {
+            if (!recursive) continue;
+            audio_list_load_from_directory(audios, engine, count, capacity, full_path, entry->d_name, true);
+            continue;
+        }
+
+        char* name = entry->d_name;
+        size_t len = strlen(name);
+
+        if (len < 4)
+            continue;
+
+        char* ext = name + len - 4;
+        if (strcasecmp(ext, ".mp3") != 0 && strcasecmp(ext, ".wav") != 0 && strcasecmp(ext, ".ogg") != 0)
+            continue;
+
+        audio_list_add_audio(audios, engine, count, capacity, id++, name, "Unknown",
+                             group_name ? group_name : "Uncategorized", full_path);
+    }
+
+    closedir(dir);
+#endif
 }
 
 void audio_start(audio* audio)
@@ -203,20 +262,11 @@ void audio_list_load_single_with_directory(
 #ifdef EMBER_PLATFORM_WINDOWS
     windows_file_manager_extract_filename(target_file_path, filename, sizeof(filename));
     windows_file_manager_extract_parent_directory(target_file_path, parent_dir, sizeof(parent_dir));
-#else
-    const char* last_slash = strrchr(target_file_path, '/');
-    if (last_slash)
-    {
-        size_t dir_len = last_slash - target_file_path;
-        strncpy(parent_dir, target_file_path, dir_len);
-        parent_dir[dir_len] = '\0';
+#endif
 
-        const char* name_start = last_slash + 1;
-        const char* dot = strrchr(name_start, '.');
-        size_t name_len = dot ? (dot - name_start) : strlen(name_start);
-        strncpy(filename, name_start, name_len);
-        filename[name_len] = '\0';
-    }
+#ifdef EMBER_PLATFORM_LINUX
+    linux_file_manager_extract_filename(target_file_path, filename, sizeof(filename));
+    linux_file_manager_extract_parent_directory(target_file_path, parent_dir, sizeof(parent_dir));
 #endif
 
     if (strlen(parent_dir) == 0)

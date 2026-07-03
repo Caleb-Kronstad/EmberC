@@ -32,6 +32,14 @@
 #include <ShlObj.h>
 #endif
 
+#ifdef EMBER_PLATFORM_LINUX
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <strings.h>
+#include <limits.h>
+#endif
+
 // DEPENDENCY INCLUDES //
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

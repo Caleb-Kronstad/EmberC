@@ -17,8 +17,7 @@ project "ember"
     
     files {
         "src/**.h",
-        "src/**.c",
-        "src/**.rc"
+        "src/**.c"
     }
 
     defines {
@@ -48,9 +47,12 @@ project "ember"
     
     filter "system:windows"
         systemversion "latest"
-        defines { 
+        defines {
             "EMBER_PLATFORM_WINDOWS",
             "_CRT_SECURE_NO_WARNINGS"
+        }
+        files {
+            "src/**.rc"
         }
         links {
             "opengl32",
@@ -60,13 +62,15 @@ project "ember"
         
     filter "system:linux"
         pic "On"
-        defines { 
-            "EMBER_PLATFORM_LINUX" 
+        defines {
+            "EMBER_PLATFORM_LINUX"
         }
         links {
             "GL",
             "dl",
             "pthread",
+            "m",
+            "stdc++",
             "X11",
             "Xrandr",
             "Xi",
@@ -331,15 +335,13 @@ project "cimgui"
     
     filter "system:linux"
         pic "On"
-        defines {
-            "IMGUI_IMPL_API=extern\t\"C\"\t"
-        }
-    
+        forceincludes { "ember_cimgui_api.h" }
+
     filter "configurations:Debug"
         defines { "DEBUG" }
         runtime "Debug"
         symbols "On"
-    
+
     filter "configurations:Release"
         defines { "RELEASE" }
         runtime "Release"

@@ -18,9 +18,13 @@ int main(int argc, char* argv[])
     enum startup_mode mode = MODE_DIRECTORY_SCAN;
     char target_file_path[1024] = {0};
     bool show_registration_prompt = false;
-    
+
 #ifdef EMBER_PLATFORM_WINDOWS
     windows_initialize(argc, argv, &mode, target_file_path, sizeof(target_file_path), &show_registration_prompt);
+#endif
+
+#ifdef EMBER_PLATFORM_LINUX
+    linux_initialize(argc, argv, &mode, target_file_path, sizeof(target_file_path));
 #endif
 
     ember_config load_config = config_initialize_defaults();

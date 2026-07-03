@@ -383,3 +383,147 @@ bool registry_unregister_file_associations(void)
 }
 
 #endif
+
+
+// LINUX
+#ifdef EMBER_PLATFORM_LINUX
+
+void linux_initialize(int argc, char* argv[], enum startup_mode* mode, char* target_file_path, size_t target_file_path_size)
+{
+    if (argc > 1)
+    {
+        char* normalized = linux_file_manager_normalize_path(argv[1]);
+        if (normalized)
+        {
+            if (linux_file_manager_is_valid_audio_file(normalized) &&
+                linux_file_manager_file_exists(normalized))
+            {
+                *mode = MODE_SINGLE_FILE;
+                strncpy(target_file_path, normalized, target_file_path_size - 1);
+                target_file_path[target_file_path_size - 1] = '\0';
+                log_info_s("Opening file from command line");
+            }
+            else
+            {
+                log_error_s("Invalid audio file provided, falling back to directory mode");
+            }
+            free(normalized);
+        }
+    }
+
+    char exe_path[PATH_MAX];
+    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len != -1)
+    {
+        exe_path[len] = '\0';
+        char* last_slash = strrchr(exe_path, '/');
+        if (last_slash)
+        {
+            *last_slash = '\0';
+
+            char assets_path[PATH_MAX];
+            snprintf(assets_path, sizeof(assets_path), "%s/assets", exe_path);
+            struct stat st;
+            if (stat(assets_path, &st) == 0 && S_ISDIR(st.st_mode))
+            {
+                if (chdir(exe_path) == 0)
+                {
+                    log_info_s("Set working directory to exe location");
+                }
+            }
+        }
+    }
+}
+
+bool linux_file_manager_is_valid_audio_file(const char* path)
+{
+    if (!path) return false;
+
+    size_t len = strlen(path);
+    if (len < 5) return false;
+
+    const char* ext = path + len - 4;
+    return (strcasecmp(ext, ".mp3") == 0 ||
+        strcasecmp(ext, ".wav") == 0 ||
+        strcasecmp(ext, ".ogg") == 0);
+}
+
+char* linux_file_manager_normalize_path(const char* raw_path)
+{
+    if (!raw_path) return NULL;
+    size_t len = strlen(raw_path);
+    if (len == 0) return NULL;
+
+    char* temp = (char*)malloc(len + 1);
+    if (!temp) return NULL;
+
+    strcpy(temp, raw_path);
+
+    if (temp[0] == '"' && temp[len - 1] == '"')
+    {
+        temp[len - 1] = '\0';
+        memmove(temp, temp + 1, len - 1);
+        len -= 2;
+    }
+
+    char* absolute = (char*)malloc(PATH_MAX);
+    if (!absolute)
+    {
+        free(temp);
+        return NULL;
+    }
+
+    if (!realpath(temp, absolute))
+    {
+        free(temp);
+        free(absolute);
+        return NULL;
+    }
+
+    free(temp);
+    return absolute;
+}
+
+bool linux_file_manager_file_exists(const char* path)
+{
+    if (!path) return false;
+
+    struct stat st;
+    return (stat(path, &st) == 0 && S_ISREG(st.st_mode));
+}
+
+void linux_file_manager_extract_filename(const char* path, char* out, size_t out_size)
+{
+    if (!path || !out || out_size == 0) return;
+
+    const char* last_slash = strrchr(path, '/');
+    const char* filename = last_slash ? last_slash + 1 : path;
+
+    const char* dot = strrchr(filename, '.');
+    size_t name_len = dot ? (size_t)(dot - filename) : strlen(filename);
+
+    size_t copy_len = name_len < (out_size - 1) ? name_len : (out_size - 1);
+    strncpy(out, filename, copy_len);
+    out[copy_len] = '\0';
+}
+
+void linux_file_manager_extract_parent_directory(const char* path, char* out, size_t out_size)
+{
+    if (!path || !out || out_size == 0) return;
+
+    const char* last_slash = strrchr(path, '/');
+
+    if (!last_slash)
+    {
+        out[0] = '\0';
+        return;
+    }
+
+    size_t dir_len = (size_t)(last_slash - path);
+    size_t copy_len = dir_len < (out_size - 1) ? dir_len : (out_size - 1);
+
+    strncpy(out, path, copy_len);
+    out[copy_len] = '\0';
+}
+
+#endif
